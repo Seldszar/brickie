@@ -18,7 +18,7 @@
 import emojiRegex from "emoji-regex";
 import Queue from "p-queue";
 import ky from "ky";
-import { find, findIndex, head, keys, orderBy, some, toUpper } from "lodash";
+import { find, findIndex, head, keys, orderBy, some } from "lodash";
 import { Client } from "twitch-js";
 
 import Combo from "./components/Combo.vue";
@@ -75,7 +75,7 @@ export default {
 
     const isExcludedUser = context => {
       return this.$settings.excludedUsers.some(
-        username => toUpper(username) === toUpper(context.username),
+        username => username.localeCompare(context.username) === 0,
       );
     };
 
