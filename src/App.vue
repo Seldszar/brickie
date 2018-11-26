@@ -5,10 +5,11 @@
     </div>
     <div :class="$style.inner" :style="{ fontFamily: $settings.font.family, fontWeight: $settings.font.weight }">
       <Combo
-        :key="bestCombo.id"
-        :emote="bestCombo.emote"
-        :amount="bestCombo.amount"
-        v-if="bestCombo && bestCombo.amount >= $settings.threshold"
+        :key="combo.id"
+        :emote="combo.emote"
+        :amount="combo.amount"
+        v-if="combo.amount >= $settings.threshold"
+        v-for="combo in combos"
       />
     </div>
   </div>
@@ -18,7 +19,7 @@
 import emojiRegex from "emoji-regex";
 import Queue from "p-queue";
 import ky from "ky";
-import { find, findIndex, head, keys, orderBy, some } from "lodash";
+import { find, findIndex, keys, some } from "lodash";
 import { Client } from "twitch-js";
 
 import Combo from "./components/Combo.vue";
@@ -33,11 +34,6 @@ export default {
     return {
       combos: [],
     };
-  },
-  computed: {
-    bestCombo() {
-      return head(orderBy(this.combos, "amount", "desc"));
-    },
   },
   async created() {
     const allEmotes = await this.fetchAllEmotes();
