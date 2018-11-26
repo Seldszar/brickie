@@ -16,8 +16,7 @@
 
 <script>
 import emojiRegex from "emoji-regex";
-import Queue from "better-queue";
-import MemoryStore from "better-queue-memory";
+import Queue from "p-queue";
 import ky from "ky";
 import { find, findIndex, head, keys, orderBy, some, toUpper } from "lodash";
 import { Client } from "twitch-js";
@@ -51,7 +50,11 @@ export default {
       },
     });
 
-    const processQueueTask = ({ context, message }, callback) => {
+    const queue = new Queue({
+      concurrency: 1,
+    });
+
+    const processMessage = (context, message) => {
       const messageEmotes = this.getMessageEmotes(allEmotes, context, message);
 
       for (const [index, combo] of this.combos.entries()) {
@@ -68,14 +71,7 @@ export default {
           this.combos.push({ id, emote, amount: 1 });
         }
       }
-
-      callback();
     };
-
-    const queue = new Queue(processQueueTask, {
-      setImmediate: callback => setTimeout(callback, 0),
-      store: new MemoryStore(),
-    });
 
     const isExcludedUser = context => {
       return this.$settings.excludedUsers.some(
@@ -88,7 +84,7 @@ export default {
         return;
       }
 
-      queue.push({ context, message });
+      queue.add(processMessage.bind(null, context, message));
     });
 
     await client.connect();
