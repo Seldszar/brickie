@@ -19,7 +19,7 @@
 import emojiRegex from "emoji-regex";
 import Queue from "p-queue";
 import ky from "ky";
-import { find, findIndex, keys, some } from "lodash";
+import { find, keys, some } from "lodash";
 import { Client } from "twitch-js";
 
 import Combo from "./components/Combo.vue";
@@ -53,20 +53,22 @@ export default {
     const processMessage = (context, message) => {
       const messageEmotes = this.getMessageEmotes(allEmotes, context, message);
 
-      for (const [index, combo] of this.combos.entries()) {
+      this.combos.forEach((combo, index) => {
         if (some(messageEmotes, combo.emote)) {
           combo.amount += 1;
         } else {
           this.combos.splice(index, 1);
         }
-      }
+      });
 
-      for (const emote of messageEmotes) {
-        if (findIndex(this.combos, { emote }) === -1) {
-          id = (id + 1) % Number.MAX_SAFE_INTEGER;
-          this.combos.push({ id, emote, amount: 1 });
+      messageEmotes.forEach(emote => {
+        if (some(this.combos, { emote })) {
+          return;
         }
-      }
+
+        id = (id + 1) % Number.MAX_SAFE_INTEGER;
+        this.combos.push({ id, emote, amount: 1 });
+      });
     };
 
     const isExcludedUser = context => {
