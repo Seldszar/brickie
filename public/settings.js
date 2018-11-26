@@ -42,8 +42,8 @@ window.settings = {
   excludedUsers: [],
 
   /**
-   * Hide the credits displayed from time to time about the author and project.
+   * Displays credits about the author and project from time to time.
    * @type {Boolean}
    */
-  hideCredits: false,
+  showCredits: true,
 };

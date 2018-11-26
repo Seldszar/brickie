@@ -1,6 +1,6 @@
 <template>
   <div :class="$style.wrapper">
-    <div :class="$style.credits" v-if="!$settings.hideCredits">
+    <div :class="$style.credits" v-if="$settings.showCredits">
       <Credits />
     </div>
     <div :class="$style.inner" :style="{ fontFamily: $settings.font.family, fontWeight: $settings.font.weight }">
