@@ -7,7 +7,7 @@
             <Emote v-bind="emote" />
           </div>
         </div>
-        <div :class="[$style.amount, { [$style.animated]: amount >= 10 }]">
+        <div v-show="amount > 1" :class="[$style.amount, { [$style.animated]: amount >= 10 }]">
           <div ref="amount">
             <small>x</small>{{ amount }}
           </div>
