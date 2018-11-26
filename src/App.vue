@@ -204,7 +204,7 @@ export default {
 .wrapper {
   height: 100vh;
   overflow: hidden;
-  padding: rem-calc(128);
+  padding: rem-calc(64);
   position: relative;
 }
 
