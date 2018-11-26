@@ -19,7 +19,7 @@ import emojiRegex from "emoji-regex";
 import Queue from "better-queue";
 import MemoryStore from "better-queue-memory";
 import ky from "ky";
-import { findIndex, head, keys, orderBy, some, toUpper } from "lodash";
+import { find, findIndex, head, keys, orderBy, some, toUpper } from "lodash";
 import { Client } from "twitch-js";
 
 import Combo from "./components/Combo.vue";
@@ -179,8 +179,10 @@ export default {
         });
       }
 
-      for (const emote of allEmotes) {
-        if (message.includes(emote.name)) {
+      for (const word of message.split(/\s+/)) {
+        const emote = find(allEmotes, ["name", word]);
+
+        if (emote) {
           messageEmotes.push({
             type: "emote",
             value: emote.url,
