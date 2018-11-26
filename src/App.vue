@@ -16,6 +16,8 @@
 
 <script>
 import emojiRegex from "emoji-regex";
+import Queue from "better-queue";
+import MemoryStore from "better-queue-memory";
 import ky from "ky";
 import { findIndex, head, keys, orderBy, some, toUpper } from "lodash";
 import { Client } from "twitch-js";
@@ -49,17 +51,7 @@ export default {
       },
     });
 
-    const isExcludedUser = context => {
-      return this.$settings.excludedUsers.some(
-        username => toUpper(username) === toUpper(context.username),
-      );
-    };
-
-    client.on("chat", (channel, context, message) => {
-      if (isExcludedUser(context)) {
-        return;
-      }
-
+    const processQueueTask = ({ context, message }, callback) => {
       const messageEmotes = this.getMessageEmotes(allEmotes, context, message);
 
       for (const [index, combo] of this.combos.entries()) {
@@ -76,6 +68,27 @@ export default {
           this.combos.push({ id, emote, amount: 1 });
         }
       }
+
+      callback();
+    };
+
+    const queue = new Queue(processQueueTask, {
+      setImmediate: callback => setTimeout(callback, 0),
+      store: new MemoryStore(),
+    });
+
+    const isExcludedUser = context => {
+      return this.$settings.excludedUsers.some(
+        username => toUpper(username) === toUpper(context.username),
+      );
+    };
+
+    client.on("chat", (channel, context, message) => {
+      if (isExcludedUser(context)) {
+        return;
+      }
+
+      queue.push({ context, message });
     });
 
     await client.connect();

@@ -20,6 +20,8 @@
     "test": "npm run lint"
   },
   "dependencies": {
+    "better-queue": "^3.8.10",
+    "better-queue-memory": "^1.0.3",
     "emoji-regex": "^7.0.0",
     "foundation-sites": "^6.4.2",
     "gsap": "^2.0.1",
