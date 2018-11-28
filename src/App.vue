@@ -72,9 +72,14 @@ export default {
     };
 
     const isExcludedUser = context => {
-      return this.$settings.excludedUsers.some(
-        username => username.localeCompare(context.username) === 0,
-      );
+      return this.$settings.excludedUsers.some(username => {
+        const result = username.localeCompare(context.username, undefined, {
+          sensitivity: "base",
+          usage: "search",
+        });
+
+        return result === 0;
+      });
     };
 
     client.on("chat", (channel, context, message) => {
