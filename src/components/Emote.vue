@@ -1,28 +1,9 @@
-<template>
+<template functional>
   <div :class="$style.wrapper">
-    <template v-if="type === 'emoji'">
-      {{ value }}
-    </template>
-    <template v-else>
-      <img :src="value">
-    </template>
+    <span v-if="props.type === 'emoji'" v-text="props.value" />
+    <img v-else :src="props.value" />
   </div>
 </template>
-
-<script>
-export default {
-  props: {
-    type: {
-      type: String,
-      required: true,
-    },
-    value: {
-      type: String,
-      required: true,
-    },
-  },
-};
-</script>
 
 <style lang="scss" module>
 .wrapper {
