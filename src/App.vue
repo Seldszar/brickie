@@ -53,13 +53,15 @@ export default {
     const processMessage = (context, message) => {
       const messageEmotes = this.getMessageEmotes(allEmotes, context, message);
 
-      this.combos.forEach((combo, index) => {
+      for (let i = this.combos.length - 1; i >= 0; i -= 1) {
+        const combo = this.combos[i];
+
         if (some(messageEmotes, combo.emote)) {
           combo.amount += 1;
         } else {
-          this.combos.splice(index, 1);
+          this.combos.splice(i, 1);
         }
-      });
+      }
 
       messageEmotes.forEach(emote => {
         if (some(this.combos, { emote })) {
