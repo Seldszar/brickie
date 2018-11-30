@@ -54,7 +54,7 @@ export default {
       return -this.rotation;
     },
     scale() {
-      return 1 + Math.min(1, (this.amount - 1) * (1 / (25 - 1)));
+      return 1 + Math.min(1, (this.amount - 1) / 24);
     },
     variables() {
       return {
