@@ -1,5 +1,5 @@
 <template>
-  <transition :css="false" appear v-on="{ afterEnter, beforeEnter, beforeLeave, enter, leave }">
+  <transition :css="false" appear v-on="{ afterLeave, beforeEnter, beforeLeave, enter, leave }">
     <div :class="$style.wrapper" :style="[{ left: `${x}%` , top: `${y}%` }, variables]">
       <div :class="$style.inner">
         <div :class="$style.emote">
@@ -21,6 +21,8 @@
 import { TimelineLite, TweenLite } from "gsap";
 import { random } from "lodash";
 import Emote from "./Emote.vue";
+
+let zIndex = 0;
 
 export default {
   components: {
@@ -44,7 +46,7 @@ export default {
     };
   },
   created() {
-    this._ready = false;
+    zIndex += 1;
   },
   computed: {
     emoteRotation() {
@@ -68,9 +70,6 @@ export default {
   },
   watch: {
     amount() {
-      if (!this._ready) {
-        return;
-      }
 
       TweenLite.fromTo(this.$el, 0.3, { scale: this.scale * 1.2 }, { scale: this.scale });
       TweenLite.from(this.$refs.emote, 0.3, { rotationZ: Math.random() >= 0.5 ? -10 : 10 });
@@ -79,17 +78,13 @@ export default {
   },
   methods: {
     beforeEnter(el) {
-      TweenLite.set(el, { opacity: 0, scale: this.scale * 1.5 });
+      TweenLite.set(el, { zIndex, opacity: 0, scale: this.scale * 1.5 });
     },
     enter(el, onComplete) {
       TweenLite.to(el, 0.3, { opacity: 1, scale: this.scale, onComplete });
     },
-    afterEnter() {
-      this._ready = true;
-    },
     beforeLeave(el) {
       TweenLite.killTweensOf(el);
-      TweenLite.set(el, { zIndex: 0 });
     },
     leave(el, onComplete) {
       const tl = new TimelineLite({ onComplete });
@@ -97,6 +92,9 @@ export default {
 
       tl.to(el, 0.3, { opacity: 0.5, scale: this.scale });
       tl.to(el, 0.6, { opacity: 0, scale: this.scale - 0.5, delay });
+    },
+    afterLeave() {
+      zIndex -= 1;
     },
   },
 };
