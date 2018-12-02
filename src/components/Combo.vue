@@ -1,5 +1,5 @@
 <template>
-  <transition :css="false" appear v-on="{ afterLeave, beforeEnter, beforeLeave, enter, leave }">
+  <transition :css="false" appear v-on="{ beforeEnter, beforeLeave, enter, leave }">
     <div :class="$style.wrapper" :style="wrapperStyle">
       <div :class="$style.inner">
         <div :class="$style.emote">
@@ -77,10 +77,10 @@ export default {
   },
   methods: {
     beforeEnter(el) {
-      TweenLite.set(el, { opacity: 0, scale: this.scale * 1.5 });
+      TweenLite.set(el, { opacity: 0 });
     },
     enter(el, onComplete) {
-      TweenLite.to(el, 0.3, { opacity: 1, scale: this.scale, onComplete });
+      TweenLite.to(el, 0.3, { opacity: 1, onComplete });
     },
     beforeLeave(el) {
       TweenLite.killTweensOf(el);
@@ -91,10 +91,7 @@ export default {
       const delay = Math.min(20, 0.5 + this.amount / 2);
 
       tl.to(el, 0.3, { opacity: 0.5, scale: this.scale });
-      tl.to(el, 0.6, { opacity: 0, scale: this.scale - 0.5, delay });
-    },
-    afterLeave() {
-      zIndex -= 1;
+      tl.to(el, 0.6, { opacity: 0, delay });
     },
   },
 };
