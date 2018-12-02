@@ -88,7 +88,7 @@ export default {
     },
     leave(el, onComplete) {
       const tl = new TimelineLite({ onComplete });
-      const delay = Math.min(20, 1 + this.amount / 2);
+      const delay = Math.min(20, 0.5 + this.amount / 2);
 
       tl.to(el, 0.3, { opacity: 0.5, scale: this.scale });
       tl.to(el, 0.6, { opacity: 0, scale: this.scale - 0.5, delay });
