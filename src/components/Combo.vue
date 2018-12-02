@@ -19,7 +19,7 @@
 
 <script>
 import { TimelineLite, TweenLite } from "gsap";
-import { random } from "lodash";
+import { random, sample } from "lodash";
 import Emote from "./Emote.vue";
 
 export default {
@@ -69,10 +69,28 @@ export default {
   },
   watch: {
     amount() {
+      TweenLite.killTweensOf(this.$el);
 
-      TweenLite.fromTo(this.$el, 0.3, { scale: this.scale * 1.2 }, { scale: this.scale });
-      TweenLite.from(this.$refs.emote, 0.3, { rotationZ: Math.random() >= 0.5 ? -10 : 10 });
-      TweenLite.from(this.$refs.amount, 0.3, { rotationZ: Math.random() >= 0.5 ? -10 : 10 });
+      TweenLite.fromTo(
+        this.$el,
+        0.3,
+        { scale: this.scale * 1.2 },
+        { opacity: 1, scale: this.scale },
+      );
+
+      TweenLite.fromTo(
+        this.$refs.emote,
+        0.3,
+        { rotation: this.emoteRotation + sample([-10, 10]) },
+        { rotation: this.emoteRotation },
+      );
+
+      TweenLite.fromTo(
+        this.$refs.amount,
+        0.3,
+        { rotation: this.emoteRotation + sample([-10, 10]) },
+        { rotation: this.amountRotation },
+      );
     },
   },
   methods: {
