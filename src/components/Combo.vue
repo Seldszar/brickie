@@ -1,6 +1,6 @@
 <template>
   <transition :css="false" appear v-on="{ afterLeave, beforeEnter, beforeLeave, enter, leave }">
-    <div :class="$style.wrapper" :style="[{ left: `${x}%` , top: `${y}%` }, variables]">
+    <div :class="$style.wrapper" :style="[{ left: `${x}%` , top: `${y}%`, zIndex: amount * 2 }, variables]">
       <div :class="$style.inner">
         <div :class="$style.emote">
           <div ref="emote">
@@ -22,8 +22,6 @@ import { TimelineLite, TweenLite } from "gsap";
 import { random } from "lodash";
 import Emote from "./Emote.vue";
 
-let zIndex = 0;
-
 export default {
   components: {
     Emote,
@@ -44,9 +42,6 @@ export default {
       x: random(0, 100),
       y: random(0, 100),
     };
-  },
-  created() {
-    zIndex += 1;
   },
   computed: {
     emoteRotation() {
@@ -78,13 +73,14 @@ export default {
   },
   methods: {
     beforeEnter(el) {
-      TweenLite.set(el, { zIndex, opacity: 0, scale: this.scale * 1.5 });
+      TweenLite.set(el, { opacity: 0, scale: this.scale * 1.5 });
     },
     enter(el, onComplete) {
       TweenLite.to(el, 0.3, { opacity: 1, scale: this.scale, onComplete });
     },
     beforeLeave(el) {
       TweenLite.killTweensOf(el);
+      TweenLite.set(el, { zIndex: "-=1" });
     },
     leave(el, onComplete) {
       const tl = new TimelineLite({ onComplete });
