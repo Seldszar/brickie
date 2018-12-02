@@ -1,6 +1,6 @@
 <template>
   <transition :css="false" appear v-on="{ afterLeave, beforeEnter, beforeLeave, enter, leave }">
-    <div :class="$style.wrapper" :style="[{ left: `${x}%` , top: `${y}%`, zIndex: amount * 2 }, variables]">
+    <div :class="$style.wrapper" :style="wrapperStyle">
       <div :class="$style.inner">
         <div :class="$style.emote">
           <div ref="emote">
@@ -53,8 +53,12 @@ export default {
     scale() {
       return 1 + Math.min(1, (this.amount - 1) / 24);
     },
-    variables() {
+    wrapperStyle() {
       return {
+        left: `${this.x}%`,
+        top: `${this.y}%`,
+        zIndex: this.amount * 2,
+
         "--emote-rotation": `${this.emoteRotation}deg`,
         "--amount-rotation": `${this.amountRotation}deg`,
         "--glow-opacity": Math.min(Math.max((this.amount - 5) / 20, 0), 1),
