@@ -1,9 +1,7 @@
 <template>
   <div :class="$style.wrapper">
-    <div :class="$style.credits" v-if="$settings.showCredits">
-      <Credits />
-    </div>
-    <div :class="$style.inner" :style="{ fontFamily: $settings.font.family, fontWeight: $settings.font.weight }">
+    <div :class="$style.credits" v-if="$settings.showCredits"><Credits /></div>
+    <div :class="$style.inner">
       <Combo
         :key="combo.id"
         :emote="combo.emote"
@@ -17,10 +15,12 @@
 
 <script>
 import emojiRegex from "emoji-regex";
+import hyperid from "hyperid";
 import Queue from "p-queue";
 import ky from "ky";
-import { find, keys, some } from "lodash";
-import { Client } from "twitch-js";
+import { some } from "lodash";
+import Sockette from "sockette";
+import tekko from "tekko";
 
 import Combo from "./components/Combo.vue";
 import Credits from "./components/Credits.vue";
@@ -37,21 +37,12 @@ export default {
   },
   async created() {
     const allEmotes = await this.fetchAllEmotes();
-    let id = 0;
 
-    const client = new Client({
-      channels: [`#${this.$settings.channel}`],
-      connection: {
-        reconnect: true,
-      },
-    });
+    const instance = hyperid();
+    const queue = new Queue({ concurrency: 1 });
 
-    const queue = new Queue({
-      concurrency: 1,
-    });
-
-    const processMessage = (context, message) => {
-      const messageEmotes = this.getMessageEmotes(allEmotes, context, message);
+    const processMessage = message => {
+      const messageEmotes = this.getMessageEmotes(allEmotes, message);
 
       for (let i = this.combos.length - 1; i >= 0; i -= 1) {
         const combo = this.combos[i];
@@ -68,14 +59,13 @@ export default {
           return;
         }
 
-        id = (id + 1) % Number.MAX_SAFE_INTEGER;
-        this.combos.push({ id, emote, amount: 1 });
+        this.combos.push({ emote, id: instance(), amount: 1 });
       });
     };
 
-    const isExcludedUser = context => {
+    const isExcludedUser = query => {
       return this.$settings.excludedUsers.some(username => {
-        const result = username.localeCompare(context.username, undefined, {
+        const result = username.localeCompare(query, undefined, {
           sensitivity: "base",
           usage: "search",
         });
@@ -84,15 +74,28 @@ export default {
       });
     };
 
-    client.on("chat", (channel, context, message) => {
-      if (isExcludedUser(context)) {
-        return;
-      }
+    new Sockette("wss://irc-ws.chat.twitch.tv:443", {
+      onopen: event => {
+        event.target.send(`CAP REQ :twitch.tv/tags`);
+        event.target.send(`NICK justinfan${80000 + Math.round(Math.random() * 1000)}`);
+        event.target.send(`JOIN #${this.$settings.channel}`);
+      },
+      onmessage: event => {
+        for (const chunk of event.data.split("\r\n")) {
+          if (chunk.length > 0) {
+            const parsed = tekko.parse(chunk);
 
-      queue.add(processMessage.bind(null, context, message));
+            if (parsed.command === "PRIVMSG") {
+              if (isExcludedUser(parsed.prefix.user)) {
+                return;
+              }
+
+              queue.add(processMessage.bind(null, parsed));
+            }
+          }
+        }
+      },
     });
-
-    await client.connect();
   },
   methods: {
     async fetchAllEmotes() {
@@ -168,20 +171,24 @@ export default {
 
       return allEmotes;
     },
-    getMessageEmotes(allEmotes, context, message) {
+    getMessageEmotes(allEmotes, message) {
       const regex = emojiRegex();
       const messageEmotes = [];
       let match;
 
-      for (const value of keys(context.emotes)) {
-        messageEmotes.push({
-          type: "emote",
-          value: `https://static-cdn.jtvnw.net/emoticons/v1/${value}/4.0`,
-        });
+      if (message.tags.emotes) {
+        for (const pair of message.tags.emotes.split("/")) {
+          const id = parseInt(pair.substr(0, pair.indexOf(":")), 10);
+
+          messageEmotes.push({
+            type: "emote",
+            value: `https://static-cdn.jtvnw.net/emoticons/v1/${id}/4.0`,
+          });
+        }
       }
 
-      for (const word of message.split(/\s+/)) {
-        const emote = find(allEmotes, ["name", word]);
+      for (const word of message.trailing.split(/\s+/)) {
+        const emote = allEmotes.find(o => o.name === word);
 
         if (emote) {
           messageEmotes.push({
@@ -191,7 +198,7 @@ export default {
         }
       }
 
-      while ((match = regex.exec(message))) {
+      while ((match = regex.exec(message.trailing))) {
         messageEmotes.push({
           type: "emoji",
           value: match[0],
@@ -204,14 +211,33 @@ export default {
 };
 </script>
 
+<style src="sanitize.css" />
 <style lang="scss" module>
-@include foundation-global-styles;
-@include foundation-typography;
+@font-face {
+  font-family: "Chewy";
+  src: url("./assets/fonts/chewy.woff") format("woff");
+}
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+
+body {
+  color: #fff;
+  font-family: Chewy;
+  font-size: 32px;
+  letter-spacing: 2px;
+  line-height: 1;
+  margin: 0;
+  user-select: none;
+}
 
 .wrapper {
   height: 100vh;
   overflow: hidden;
-  padding: rem-calc(64);
+  padding: 64px;
   position: relative;
 }
 

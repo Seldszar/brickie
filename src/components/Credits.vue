@@ -1,15 +1,17 @@
 <template>
   <div :class="$style.wrapper">
-    <transition mode="out-in" :class="false" v-on="{ beforeEnter, enter, afterEnter, beforeLeave, leave }">
-      <div :key="index" v-if="state === 'playing'">
-        {{ items[index] }}
-      </div>
+    <transition
+      mode="out-in"
+      :class="false"
+      v-on="{ beforeEnter, enter, afterEnter, beforeLeave, leave }"
+    >
+      <div :key="index" v-if="state === 'playing'" v-text="items[index]" />
     </transition>
   </div>
 </template>
 
 <script>
-import { TweenLite } from "gsap";
+import { TweenLite } from "gsap/all";
 
 export default {
   data() {
@@ -60,9 +62,7 @@ export default {
 
 <style lang="scss" module>
 .wrapper {
-  font-size: rem-calc(24);
-  font-weight: 700;
   text-align: center;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 </style>

@@ -3,14 +3,10 @@
     <div :class="$style.wrapper" :style="wrapperStyle">
       <div :class="$style.inner">
         <div :class="$style.emote">
-          <div ref="emote">
-            <Emote v-bind="emote" />
-          </div>
+          <div ref="emote"><Emote v-bind="emote" /></div>
         </div>
         <div v-show="amount > 1" :class="[$style.amount, { [$style.animated]: amount >= 10 }]">
-          <div ref="amount">
-            <small>x</small>{{ amount }}
-          </div>
+          <div ref="amount"><small>x</small>{{ amount }}</div>
         </div>
       </div>
     </div>
@@ -18,7 +14,7 @@
 </template>
 
 <script>
-import { TimelineLite, TweenLite } from "gsap";
+import { TimelineLite, TweenLite } from "gsap/all";
 import { random, sample } from "lodash";
 import Emote from "./Emote.vue";
 
@@ -141,11 +137,11 @@ export default {
 .wrapper {
   align-items: center;
   display: flex;
-  height: rem-calc(256);
+  height: 256px;
   justify-content: center;
   position: absolute;
   transform: translate(-50%, -50%);
-  width: rem-calc(256);
+  width: 256px;
   z-index: 10;
 
   &:before {
@@ -166,7 +162,7 @@ export default {
 .inner {
   align-items: center;
   display: flex;
-  font-size: rem-calc(38);
+  font-size: 38px;
   position: relative;
   text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
@@ -177,11 +173,11 @@ export default {
 
 .amount {
   left: 50%;
-  line-height: 1;
-  font-size: rem-calc(52);
+  font-size: 52px;
   position: absolute;
   transform: translateX(-50%) rotate(var(--amount-rotation)) translateY(25%);
   top: 50%;
+  white-space: nowrap;
 
   &.animated {
     animation: flash var(--flash-duration) linear infinite;
