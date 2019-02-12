@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { TweenLite } from "gsap/all";
+import { TweenLite } from "gsap";
 
 export default {
   data() {

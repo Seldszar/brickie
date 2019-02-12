@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { TimelineLite, TweenLite } from "gsap/all";
+import { TimelineLite, TweenLite } from "gsap";
 import { random, sample } from "lodash";
 import Emote from "./Emote.vue";
 
